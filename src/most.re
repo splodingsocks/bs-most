@@ -6,8 +6,7 @@ type stream('a);
 [@bs.module "most"] external forEach : ('a => unit, stream('a)) => Js.Promise.t(unit) = "";
 
 /* Reduce a stream, returning a promise for the ultimate result. */
-[@bs.module "most"]
-external reduce : (('accum, 'a) => 'b, 'b, stream('a)) => Js.Promise.t('b) = "";
+[@bs.module "most"] external reduce : (('accum, 'a) => 'b, 'b, stream('a)) => Js.Promise.t('b) = "";
 
 /* Start consuming events from stream.
    This can be useful in some cases where you don't want or need to process the terminal events
@@ -21,12 +20,12 @@ type observer('a) = {
   .
   "next": 'a => unit,
   "error": Js.Exn.t => unit,
-  "complete": unit => unit
+  "complete": unit => unit,
 };
 
 type subscription = {. "unsubscribe": unit => unit};
 
-[@bs.send.pipe : stream('a)] external subscribe : observer('a) => subscription = "";
+[@bs.send.pipe: stream('a)] external subscribe : observer('a) => subscription = "";
 
 
 /***
@@ -58,23 +57,22 @@ external unsafeCast : Js.t('a) => Js.t('b) = "%identity";
 
 /* Creates a stream from a generating function and a seed */
 let unfold = (f: 'a => option(('b, 'a))) : ('a => stream('b)) =>
-  _unfold(
-    (x) =>
-      switch (f(x)) {
-      | None => unsafeCast({"_done": true})
-      | Some((value, seed)) => unsafeCast({"value": value, "seed": seed})
-      }
+  _unfold(x =>
+    switch (f(x)) {
+    | None => unsafeCast({"_done": true})
+    | Some((value, seed)) => unsafeCast({"value": value, "seed": seed})
+    }
   );
 
 /* Creates a stream from a Reason list */
-let fromList = (list) =>
+let fromList = list =>
   unfold(
-    (curList) =>
-      switch curList {
+    curList =>
+      switch (curList) {
       | [] => None
       | [x, ...rest] => Some((x, rest))
       },
-    list
+    list,
   );
 
 /* Creates a stream from a promise that completes once the promise resolves */
@@ -93,15 +91,13 @@ let fromList = (list) =>
 
 /* Same as `iterate`, but the function may return a promise.
    This allows one to build asynchronous streams of future values */
-[@bs.module "most"]
-external iteratePromise : ('a => Js.Promise.t('a), 'a) => stream('a) = "iterate";
+[@bs.module "most"] external iteratePromise : ('a => Js.Promise.t('a), 'a) => stream('a) = "iterate";
 
 /* Create a stream of events from a DOM EventTarget */
-[@bs.module "most"]
-external fromEvent : (string, Dom.eventTarget, Js.boolean) => stream(Dom.event) = "";
+[@bs.module "most"] external fromEvent : (string, Dom.eventTarget, Js.boolean) => stream(Dom.event) = "";
 
 /* Concatenates two streams together */
-[@bs.send.pipe : stream('a)] external concat : stream('a) => stream('a) = "";
+[@bs.send.pipe: stream('a)] external concat : stream('a) => stream('a) = "";
 
 /* Appends an element to the start of a stream */
 [@bs.module "most"] external startWith : ('a, stream('a)) => stream('a) = "";
@@ -149,8 +145,8 @@ external timestamp :
     {
       .
       "time": int,
-      "value": 'a
-    }
+      "value": 'a,
+    },
   ) =
   "";
 
@@ -168,8 +164,7 @@ external timestamp :
 [@bs.module "most"] external skipRepeats : stream('a) => stream('a) = "";
 
 /* Create a new stream with adjacent repeated events removed, using the provided comparison function */
-[@bs.module "most"]
-external skipRepeatsWith : (('a, 'a) => Js.boolean, stream('a)) => stream('a) = "";
+[@bs.module "most"] external skipRepeatsWith : (('a, 'a) => Js.boolean, stream('a)) => stream('a) = "";
 
 
 /***
@@ -225,52 +220,17 @@ external skipRepeatsWith : (('a, 'a) => Js.boolean, stream('a)) => stream('a) = 
 /* NOTE: This is not included yet due to the variadic callback requirement... */
 /*external combineArray : (array 'a => 'b) => array (stream 'a) => stream 'a = "" [@@bs.module "most"];*/
 /* Create a new stream by combining sampled values from many input streams. */
-[@bs.module "most"]
-external sample1 : ('a => 'b, stream('sample), stream('a)) => stream('b) = "sample";
+[@bs.module "most"] external sample1 : ('a => 'b, stream('sample), stream('a)) => stream('b) = "sample";
 
-[@bs.module "most"]
-external sample2 : (('a, 'a) => 'b, stream('sample), stream('a), stream('a)) => stream('b) =
-  "sample";
+[@bs.module "most"] external sample2 : (('a, 'a) => 'b, stream('sample), stream('a), stream('a)) => stream('b) = "sample";
 
-[@bs.module "most"]
-external sample3 :
-  (('a, 'a, 'a) => 'b, stream('sample), stream('a), stream('a), stream('a)) => stream('b) =
-  "sample";
+[@bs.module "most"] external sample3 : (('a, 'a, 'a) => 'b, stream('sample), stream('a), stream('a), stream('a)) => stream('b) = "sample";
 
-[@bs.module "most"]
-external sample4 :
-  (('a, 'a, 'a, 'a) => 'b, stream('sample), stream('a), stream('a), stream('a), stream('a)) =>
-  stream('b) =
-  "sample";
+[@bs.module "most"] external sample4 : (('a, 'a, 'a, 'a) => 'b, stream('sample), stream('a), stream('a), stream('a), stream('a)) => stream('b) = "sample";
 
-[@bs.module "most"]
-external sample5 :
-  (
-    ('a, 'a, 'a, 'a, 'a) => 'b,
-    stream('sample),
-    stream('a),
-    stream('a),
-    stream('a),
-    stream('a),
-    stream('a)
-  ) =>
-  stream('b) =
-  "sample";
+[@bs.module "most"] external sample5 : (('a, 'a, 'a, 'a, 'a) => 'b, stream('sample), stream('a), stream('a), stream('a), stream('a), stream('a)) => stream('b) = "sample";
 
-[@bs.module "most"]
-external sample6 :
-  (
-    ('a, 'a, 'a, 'a, 'a, 'a) => 'b,
-    stream('sample),
-    stream('a),
-    stream('a),
-    stream('a),
-    stream('a),
-    stream('a),
-    stream('a)
-  ) =>
-  stream('b) =
-  "sample";
+[@bs.module "most"] external sample6 : (('a, 'a, 'a, 'a, 'a, 'a) => 'b, stream('sample), stream('a), stream('a), stream('a), stream('a), stream('a), stream('a)) => stream('b) = "sample";
 
 /* When an event arrives on asampler, emit the latest event value from a stream of values. */
 [@bs.module "most"] external sampleWith : (stream('sample), stream('a)) => stream('a) = "";
