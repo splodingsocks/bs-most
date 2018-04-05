@@ -6,7 +6,7 @@ type stream('a);
 [@bs.module "most"] external forEach : ('a => unit, stream('a)) => Js.Promise.t(unit) = "";
 
 /* Reduce a stream, returning a promise for the ultimate result. */
-[@bs.module "most"] external reduce : (('accum, 'a) => 'b, 'b, stream('a)) => Js.Promise.t('b) = "";
+[@bs.module "most"] external reduce : (('accum, 'a) => 'accum, 'accum, stream('a)) => Js.Promise.t('accum) = "";
 
 /* Start consuming events from stream.
    This can be useful in some cases where you don't want or need to process the terminal events
@@ -123,7 +123,7 @@ let fromList = list =>
 [@bs.module "most"] external constant : ('a, stream('b)) => stream('a) = "";
 
 /* Create a new stream containing incrementally accumulated results, starting with the provided initial value. */
-[@bs.module "most"] external scan : (('accum, 'a) => 'b, 'accum, stream('a)) => stream('b) = "";
+[@bs.module "most"] external scan : (('accum, 'a) => 'accum, 'accum, stream('a)) => stream('accum) = "";
 
 /* Transform each event in stream into a stream, and then merge it into the resulting stream. */
 [@bs.module "most"] external flatMap : ('a => stream('b), stream('a)) => stream('b) = "";
