@@ -23,7 +23,8 @@ type observer('a) = {
   "complete": unit => unit,
 };
 
-type subscription = {. "unsubscribe": unit => unit};
+type subscription = {. [@bs.meth] "unsubscribe": unit => unit};
+[@bs.send.pipe: subscription] external unsubscribe : unit = "";
 
 [@bs.send.pipe: stream('a)] external subscribe : observer('a) => subscription = "";
 
